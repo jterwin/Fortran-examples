@@ -13,24 +13,21 @@ root_finding
 * compare bisection, secant, and Newton's methods
 * pass functions as arguments
 
-lapack
------------
-* call LAPACK subroutines
-* use Fortran 95 wrapping
-* use MKL
-
-nonlin_systems
-----------------------
-* Newton's method for non-linear systems
-
 odes
 -----------
 * simple numerical odes
 * systems of odes
 * Runge-Kutta
 
+lapack
+-----------
+* call LAPACK subroutines
+* use Fortran 95 wrapping
+* use MKL
+
 nonlin_optimization
 ----------------------
+* Newton's method for non-linear systems
 * minimize a scalar function
 * non-linear least squares
 
