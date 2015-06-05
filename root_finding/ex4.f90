@@ -21,8 +21,12 @@ contains
   !
   !
   !
-  subroutine bisect(fun, ain, bin, xopt, verbose)
+  subroutine bisect(fun, ain, bin, xopt)
 
+    ! - Here is the interface for the function fun, we need only
+    !   state the inputs with intent, size, and type/precision.
+    ! (Note: we need to use "types" inside the interace to
+    !        get user-defined precision)
     interface
        function fun(x)
          use types
@@ -39,14 +43,7 @@ contains
     real(dp), parameter :: TOL = 1.0e-8_dp
 
     integer :: i
-    logical :: write_steps
     real(dp) :: a, b, fa, fb, c, fc
-
-    ! here set a flag to print out extra info
-    write_steps = .False.
-    if (present(verbose)) then
-       if (verbose) write_steps = .True.
-    end if
 
     a = ain
     fa = fun(a)
@@ -58,7 +55,7 @@ contains
        c = (a+b)*0.5_dp
        fc = fun(c)
 
-       if (write_steps) write(*,*) i, c, fc
+       write(*,*) i, p, fp
 
        if (abs(b-c) < TOL .or. abs(fc) < TOL) then
           exit
@@ -111,7 +108,7 @@ contains
        p = p1 + delp
        fp = fun(p)
 
-       write(*, *) i, p, fp
+       write(*,*) i, p, fp
 
        if (abs(delp) < TOL .or. abs(fp) < TOL) then
           exit
@@ -130,7 +127,7 @@ contains
   !
   !
   !
-  subroutine newton(fun, funp, x0, xopt)
+  subroutine newton(fun, funp, x0, xopt, verbose)
 
     interface
        function fun(x)
@@ -153,10 +150,21 @@ contains
 
     integer :: i
     real(dp) :: p, fp, fpp, delp
+    logical :: write_steps
 
+
+    ! if called with optional input verbose=.true., then
+    !  print out iteration steps.
+    write_steps = .False.
+    if (present(verbose)) then
+       if (verbose) write_steps = .True.
+    end if
+
+    ! initial guess
     p = x0
     fp = fun(p)
 
+    ! newton loop
     do i = 1, MAX_ITERS
 
        fpp = funp(p)
@@ -165,7 +173,7 @@ contains
        p = p + delp
        fp = fun(p)
 
-       write(*, *) i, p, fp
+       if (write_steps) write(*,*) i, c, fc
 
        if (abs(delp) < TOL .or. abs(fp) < TOL) then
           exit
@@ -173,6 +181,7 @@ contains
 
     end do
 
+    ! reached max_steps, then stop program with error message
     if (i .eq. MAX_ITERS) stop "newton's method did not converge (MAX_ITERS)"
 
     xopt = p
@@ -196,16 +205,35 @@ program root_finding
   real(dp) :: xopt
 
   write(*,*) ""
+  write(*,*) "f = x**3 + 4.0_dp*x**2 - 10.0_dp"
+  
+  write(*,*) ""
   write(*,*) "bisection method"
-  call bisect(myfun, 1.0_dp, 2.0_dp,  xopt, verbose=.true.)
+  call bisect(myfun, 1.0_dp, 2.0_dp, xopt)
 
   write(*,*) ""
   write(*,*) "secant method"
-  call secant(myfun, 1.0_dp, 2.0_dp,  xopt)
+  call secant(myfun, 1.0_dp, 2.0_dp, xopt)
 
   write(*,*) ""
   write(*,*) "newton's method"
-  call newton(myfun, myfunprime, 1.0_dp, xopt)
+  call newton(myfun, myfunprime, 1.0_dp, xopt, verbose=.true.)
+
+
+  write(*,*) ""
+  write(*,*) "f = x - cos(x)"
+    
+  write(*,*) ""
+  write(*,*) "bisection method"
+  call bisect(myfun2, 0.7_dp, 0.8_dp, xopt)
+
+  write(*,*) ""
+  write(*,*) "secant method"
+  call secant(myfun2, 0.7_dp, 0.8_dp, xopt)
+
+  write(*,*) ""
+  write(*,*) "newton's method"
+  call newton(myfun2, myfunprime2, 0.7_dp, xopt, verbose=.true.)
 
 contains
 
@@ -232,6 +260,29 @@ contains
 
   end function myfunprime
 
+
+  !
+  ! or this function
+  !
+  function myfun2(x) result(f)
+
+    real(dp) :: f
+    real(dp), intent(in) :: x
+
+    f = x - cos(x)
+    return
+
+  end function myfun2
+
+  function myfunprime2(x) result(fp)
+
+    real(dp) :: fp
+    real(dp), intent(in) :: x
+
+    fp = 1.0_dp + sin(x)
+    return
+
+  end function myfunprime2
 
 
 end program root_finding
