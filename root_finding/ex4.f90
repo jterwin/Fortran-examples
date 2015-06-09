@@ -37,7 +37,6 @@ contains
 
     real(dp), intent(in) :: ain, bin
     real(dp), intent(out) :: xopt
-    logical, optional, intent(in) :: verbose
 
     integer, parameter :: MAX_ITERS = 50
     real(dp), parameter :: TOL = 1.0e-8_dp
@@ -55,7 +54,7 @@ contains
        c = (a+b)*0.5_dp
        fc = fun(c)
 
-       write(*,*) i, p, fp
+       write(*,*) i, c, fc
 
        if (abs(b-c) < TOL .or. abs(fc) < TOL) then
           exit
@@ -145,6 +144,8 @@ contains
     real(dp), intent(in) :: x0
     real(dp), intent(out) :: xopt
 
+    logical, optional, intent(in) :: verbose
+
     integer, parameter :: MAX_ITERS = 20
     real(dp), parameter :: TOL = 1.0e-8_dp
 
@@ -173,7 +174,7 @@ contains
        p = p + delp
        fp = fun(p)
 
-       if (write_steps) write(*,*) i, c, fc
+       if (write_steps) write(*,*) i, p, fp
 
        if (abs(delp) < TOL .or. abs(fp) < TOL) then
           exit

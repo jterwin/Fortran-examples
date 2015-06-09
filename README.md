@@ -1,6 +1,6 @@
-# Fortan examples
+# Fortran examples
 
-This guide is meant as a short introduction to Fortan 90 basics, but
+This guide is meant as a short introduction to Fortran 90 basics, but
 moreso as a set of examples of good practices in developing large
 numerical projects.
 
